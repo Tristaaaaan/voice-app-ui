@@ -1,0 +1,44 @@
+# Third Window
+<ThirdWindow>:
+    name: "third"
+    MDBoxLayout:
+        size_hint: 1, .9
+        orientation: 'vertical'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        MDBoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint: .9, .1
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            MDIconButton:
+                icon: 'chevron-left'
+                theme_text_color: 'Custom'
+                text_color: 'gray'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release: 
+                    root.back()
+        MDBoxLayout:
+            size_hint: .9, .1
+            orientation: 'vertical'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            MDLabel:
+                text: "Account"
+                text_color: "gray"
+                theme_text_color: 'Custom'
+                font_style: 'H6'
+        MDBoxLayout:
+            size_hint: .9, .7
+            orientation: 'vertical'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        MDBoxLayout:
+            size_hint: .9, .2
+            orientation: 'vertical'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            MDFlatButton:
+                text: "LOGOUT"
+                font_style: "Button"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                text_color: "white"
+                theme_text_color: "Custom"
+                size_hint_x: 0.9
+                md_bg_color: [20/255, 20/255, 20/255, 1]

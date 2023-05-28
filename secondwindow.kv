@@ -1,0 +1,128 @@
+# Second Window
+<SecondWindow>:
+    name: "second"
+    silence_threshold: silence_threshold
+    silence_duration: silence_duration
+    recording_length: recording_length
+
+    MDBoxLayout:
+        size_hint: 1, 1
+        orientation: 'vertical'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        MDBoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint: .9, .1
+            padding: 0, 30, 0, 0
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            MDIconButton:
+                icon: 'chevron-left'
+                theme_text_color: 'Custom'
+                text_color: 'gray'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release: 
+                    root.back()
+        MDBoxLayout:
+            size_hint: .9, .2
+            orientation: 'vertical'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            MDLabel:
+                text: "Settings"
+                text_color: "gray"
+                theme_text_color: 'Custom'
+                font_style: 'H6'
+        MDBoxLayout:
+            size_hint: .9, .5
+            orientation: 'vertical'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            spacing: 15
+            # Max Phrase Seconds
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, .1
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                MDLabel:
+                    text: "Length of Recording"
+                    markup: True
+                    font_style: "Caption"
+                MDSlider:
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    size_hint: 1, .1
+                    color: "black"
+                    thumb_color_active: "black"
+                    thumb_color_inactive: "gray"
+                    track_color_inactive: "gray"
+                    track_color_active: "black"
+                    id: recording_length
+                    min: 2
+                    max: 20
+                    value: 0
+                    hint: False
+            # Number of Seconds of Silence
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, .1
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                spacing: 2
+                MDLabel:
+                    text: "Silence Duration"
+                    markup: True
+                    font_style: "Caption"
+                MDSlider:
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    color: "black"
+                    thumb_color_active: "black"
+                    thumb_color_inactive: "gray"
+                    track_color_inactive: "gray"
+                    track_color_active: "black"
+                    id: silence_duration
+                    size_hint: 1, .1
+                    min: 1
+                    max: 4
+                    value: 0
+                    hint: False
+            # Silence Threshold
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, .1
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                spacing: 2
+                MDLabel:
+                    text: "Silence Threshold"
+                    markup: True
+                    font_style: "Caption"
+                MDSlider:
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    color: "black"
+                    thumb_color_active: "black"
+                    thumb_color_inactive: "gray"
+                    track_color_inactive: "gray"
+                    track_color_active: "black"
+                    id: silence_threshold
+                    size_hint: 1, .1
+                    min: 1
+                    max: 8
+                    value: 0
+                    hint: False
+        MDBoxLayout:
+            orientation: 'horizontal'
+            spacing: 10
+            size_hint: .8, .6
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            MDIconButton:
+                icon: 'refresh'
+                theme_text_color: 'Custom'
+                text_color: 'gray'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                on_release: 
+                    root.reset()
+            MDFlatButton:
+                text: "save"
+                font_style: "Button"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                text_color: "white"
+                theme_text_color: "Custom"
+                size_hint_x: 0.50
+                md_bg_color: [20/255, 20/255, 20/255, 1]
+                on_release:
+                    root.verify()

@@ -1,0 +1,55 @@
+# First Window
+<FirstWindow>:
+    rec: rec
+    sett: sett
+    container: container
+    name: "first"
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: 20
+        padding: 0, 20, 0, 20
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        size_hint: .9, 1
+        ScrollView:
+            size_hint_y: .9
+            MDList:
+                id: container
+                padding: 0, 0
+                
+        MDBoxLayout:
+            orientation: 'horizontal'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            size_hint: .9, .1
+            spacing: 40
+            MDIconButton:
+                id: sett
+                icon: 'microphone-settings'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                size_hint_x: .50
+                on_release:
+                    root.settings()
+            MDIconButton:
+                id: rec
+                icon: 'record-circle-outline'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                size_hint_x: .50
+                on_release:
+                    root.toggle_recording()
+            MDIconButton:
+                icon: 'account-settings'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                size_hint_x: .50
+                on_release:
+                    root.account()
+
+<ListItemWithIcon>:
+    status: status
+    font_style: 'Subtitle1'
+    secondary_font_style: 'Caption'
+    IconRightWidget:
+        id: status
+        icon: 'play'
+        theme_text_color: "Custom"
+        text_color: "gray"
+        on_release:
+            root.play_rec()
