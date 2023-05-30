@@ -17,6 +17,7 @@ import datetime
 import os
 
 from kivy import platform
+
 ausettings = AudioSettings()
 au = Audio()
 
@@ -25,6 +26,8 @@ if platform == "android":
     request_permissions([Permission.INTERNET, Permission.WRITE_EXTERNAL_STORAGE,
                          Permission.READ_EXTERNAL_STORAGE])
 
+sound = SoundLoader.load("Test.wav")
+
 
 class ListItemWithIcon(TwoLineAvatarIconListItem):
     '''Custom list item'''
@@ -32,7 +35,6 @@ class ListItemWithIcon(TwoLineAvatarIconListItem):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._txt_left_pad = "10dp"
-        self.sound = SoundLoader.load("Recording A.wav")
 
     def on_kv_post(self, base_widget):
         super().on_kv_post(base_widget)
@@ -49,11 +51,16 @@ class ListItemWithIcon(TwoLineAvatarIconListItem):
             self.playback_thread = threading.Thread(
                 target=self.stop_audio())
 
+        sound.bind(on_stop=self.on_recording_end)
+
+    def on_recording_end(self, *args):
+        self.ids.status.icon = 'play'
+
     def play_audio(self):
-        self.sound.play()
+        sound.play()
 
     def stop_audio(self):
-        self.sound.stop()
+        sound.stop()
 
 
 class FirstWindow(Screen):
@@ -64,7 +71,6 @@ class FirstWindow(Screen):
         super().__init__(**kw)
 
         Clock.schedule_once(self.begin)
-        self.sound = SoundLoader.load("Recording A.wav")
 
     def begin(self, *args):
         if au.FI() is True:
@@ -74,10 +80,10 @@ class FirstWindow(Screen):
                 message="Sorry, the application failed to establish a connection. Please try again.")
 
     def audio_play(self):
-        self.sound.play()
+        sound.play()
 
     def audio_stop(self):
-        self.sound.stop()
+        sound.stop()
 
     def get_audio_files(self):
         if au.CS() is True:
@@ -102,7 +108,7 @@ class FirstWindow(Screen):
                 message="Sorry, the application failed to establish a connection. Please try again.")
 
     def get_recording_length(self):
-        audio_length = self.sound.length
+        audio_length = sound.length
         length = datetime.timedelta(seconds=int(audio_length))
         hours, remainder = divmod(length.seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
@@ -137,16 +143,37 @@ class FirstWindow(Screen):
     def toggle_recording(self):
         if self.ids.rec.icon == 'record-circle-outline':
             self.ids.rec.icon = 'stop'
+            self.ids.acc.disabled = True
+            self.ids.sett.disabled = True
+            sound.stop()
+            # Get the first item in the container
+            for item in self.ids.container.children:
+                if isinstance(item, ListItemWithIcon):
+                    item.ids.status.disabled = True
+                    item.ids.status.icon = 'play'
         else:
+            self.ids.acc.disabled = False
+            self.ids.sett.disabled = False
             self.ids.rec.icon = 'record-circle-outline'
+            # Get the first item in the container
+            for item in self.ids.container.children:
+                if isinstance(item, ListItemWithIcon):
+                    item.ids.status.disabled = False
 
     def settings(self):
+        for item in self.ids.container.children:
+            if isinstance(item, ListItemWithIcon):
+                item.ids.status.icon = 'play'
+        sound.stop()
 
         self.manager.current = "second"
         self.manager.transition.direction = "left"
 
     def account(self):
-
+        for item in self.ids.container.children:
+            if isinstance(item, ListItemWithIcon):
+                item.ids.status.icon = 'play'
+        sound.stop()
         self.manager.current = "third"
         self.manager.transition.direction = "left"
 
@@ -200,8 +227,8 @@ class rawApp(MDApp):
 
         if platform == "android":
             from android.permissions import request_permissions, Permission
-            request_permissions(Permission.INTERNET,
-                                [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
+            request_permissions(
+                [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
 
         self.root.ids.second.silence_duration.value = int(
             ausettings.get_audio_settings()[0])
