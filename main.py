@@ -32,7 +32,7 @@ class ListItemWithIcon(TwoLineAvatarIconListItem):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._txt_left_pad = "10dp"
-        self.sound = SoundLoader.load("./recordings/Recording A.wav")
+        self.sound = SoundLoader.load("Recording A.wav")
 
     def on_kv_post(self, base_widget):
         super().on_kv_post(base_widget)
@@ -64,7 +64,7 @@ class FirstWindow(Screen):
         super().__init__(**kw)
 
         Clock.schedule_once(self.begin)
-        self.sound = SoundLoader.load("./recordings/Recording A.wav")
+        self.sound = SoundLoader.load("Recording A.wav")
 
     def begin(self, *args):
         if au.FI() is True:
@@ -82,9 +82,8 @@ class FirstWindow(Screen):
     def get_audio_files(self):
         if au.CS() is True:
             # Get the directory path where WAV files are located
-            directory_path = os.path.abspath("./recordings")
+            directory_path = os.path.abspath("./")
 
-            os.makedirs(directory_path, exist_ok=True)
             # Iterate through files in the directory
             for file_name in os.listdir(directory_path):
                 # Check if the file has a .wav extension
