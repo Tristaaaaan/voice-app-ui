@@ -1,7 +1,7 @@
 {
     "Audio_settings": {
         "Silence_Seconds": 3,
-        "Silence_Threshold": 400,
-        "Max_Phrase_Seconds": 12
+        "Silence_Threshold": 300,
+        "Max_Phrase_Seconds": 14
     }
 }

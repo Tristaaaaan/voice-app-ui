@@ -1,32 +1,70 @@
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.clock import Clock
-
+from kivy.properties import ListProperty
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.list import TwoLineAvatarIconListItem
 from kivymd.uix.dialog import MDDialog
+from kivy.core.audio import SoundLoader
 
 from audio import Audio
 from audio_settings import AudioSettings
 
+import threading
+import datetime
+import os
+
+from kivy import platform
 ausettings = AudioSettings()
 au = Audio()
+
+if platform == "android":
+    from android.permissions import request_permissions, Permission
+    request_permissions([Permission.INTERNET, Permission.WRITE_EXTERNAL_STORAGE,
+                         Permission.READ_EXTERNAL_STORAGE])
 
 
 class ListItemWithIcon(TwoLineAvatarIconListItem):
     '''Custom list item'''
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._txt_left_pad = "10dp"
+        self.sound = SoundLoader.load("./recordings/Recording A.wav")
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        self.ids._left_container.padding = [
+            self._txt_left_pad, "0dp", "0dp", "0dp"]
+
+    def play_rec(self):
+        if self.ids.status.icon == 'play':
+            self.ids.status.icon = 'stop'
+            self.playback_thread = threading.Thread(target=self.play_audio())
+
+        else:
+            self.ids.status.icon = 'play'
+            self.playback_thread = threading.Thread(
+                target=self.stop_audio())
+
+    def play_audio(self):
+        self.sound.play()
+
+    def stop_audio(self):
+        self.sound.stop()
+
 
 class FirstWindow(Screen):
-
+    files = ListProperty([])
     Builder.load_file('firstwindow.kv')
 
     def __init__(self, **kw):
         super().__init__(**kw)
 
         Clock.schedule_once(self.begin)
+        self.sound = SoundLoader.load("./recordings/Recording A.wav")
 
     def begin(self, *args):
         if au.FI() is True:
@@ -35,12 +73,48 @@ class FirstWindow(Screen):
             self.error_dialog(
                 message="Sorry, the application failed to establish a connection. Please try again.")
 
+    def audio_play(self):
+        self.sound.play()
+
+    def audio_stop(self):
+        self.sound.stop()
+
     def get_audio_files(self):
         if au.CS() is True:
-            pass
+            # Get the directory path where WAV files are located
+            directory_path = os.path.abspath("./recordings")
+
+            os.makedirs(directory_path, exist_ok=True)
+            # Iterate through files in the directory
+            for file_name in os.listdir(directory_path):
+                # Check if the file has a .wav extension
+                if file_name.endswith('.wav'):
+                    # Add the file name to the files list
+                    self.files.append(file_name)
+
+            # Populate the file list view with the WAV files
+            for file_name in self.files:
+                list_item = ListItemWithIcon(text=file_name)
+                list_item.secondary_text = self.get_recording_length()
+                self.ids.container.add_widget(list_item)
+            self.files = []
         else:
             self.error_dialog(
                 message="Sorry, the application failed to establish a connection. Please try again.")
+
+    def get_recording_length(self):
+        audio_length = self.sound.length
+        length = datetime.timedelta(seconds=int(audio_length))
+        hours, remainder = divmod(length.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        if hours == 0:
+            formatted_length = "{:02d}:{:02d}".format(minutes, seconds)
+        else:
+            formatted_length = "{:02d}:{:02d}:{:02d}".format(
+                hours, minutes, seconds)
+
+        return formatted_length
 
     def error_dialog(self, message):
 
@@ -124,6 +198,11 @@ class rawApp(MDApp):
         return WindowManager()
 
     def on_start(self):
+
+        if platform == "android":
+            from android.permissions import request_permissions, Permission
+            request_permissions(Permission.INTERNET,
+                                [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE])
 
         self.root.ids.second.silence_duration.value = int(
             ausettings.get_audio_settings()[0])
