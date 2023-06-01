@@ -8,7 +8,8 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.list import TwoLineAvatarIconListItem
 from kivymd.uix.dialog import MDDialog
 from kivy.core.audio import SoundLoader
-
+from jnius import autoclass
+from time import sleep
 from audio import Audio
 from audio_settings import AudioSettings
 
@@ -23,7 +24,7 @@ au = Audio()
 
 if platform == "android":
     from android.permissions import request_permissions, Permission
-    request_permissions([Permission.INTERNET, Permission.WRITE_EXTERNAL_STORAGE,
+    request_permissions([Permission.INTERNET, Permission.RECORD_AUDIO, Permission.WRITE_EXTERNAL_STORAGE,
                          Permission.READ_EXTERNAL_STORAGE])
 
 sound = SoundLoader.load("Test.wav")
@@ -146,6 +147,7 @@ class FirstWindow(Screen):
             self.ids.acc.disabled = True
             self.ids.sett.disabled = True
             sound.stop()
+            threading.Thread(target=self.start_recording).start()
             # Get the first item in the container
             for item in self.ids.container.children:
                 if isinstance(item, ListItemWithIcon):
@@ -159,6 +161,27 @@ class FirstWindow(Screen):
             for item in self.ids.container.children:
                 if isinstance(item, ListItemWithIcon):
                     item.ids.status.disabled = False
+
+    def start_recording(self):
+        # get the needed Java classes
+        MediaRecorder = autoclass('android.media.MediaRecorder')
+        AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
+        OutputFormat = autoclass('android.media.MediaRecorder$OutputFormat')
+        AudioEncoder = autoclass('android.media.MediaRecorder$AudioEncoder')
+
+        # create out recorder
+        mRecorder = MediaRecorder()
+        mRecorder.setAudioSource(AudioSource.MIC)
+        mRecorder.setOutputFormat(OutputFormat.THREE_GPP)
+        mRecorder.setOutputFile('./testrecorder.3gp')
+        mRecorder.setAudioEncoder(AudioEncoder.AMR_NB)
+        mRecorder.prepare()
+
+        # record 5 seconds
+        mRecorder.start()
+        sleep(10)
+        mRecorder.stop()
+        mRecorder.release()
 
     def settings(self):
         for item in self.ids.container.children:
