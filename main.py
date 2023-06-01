@@ -12,7 +12,7 @@ from jnius import autoclass
 from time import sleep
 from audio import Audio
 from audio_settings import AudioSettings
-
+from kivy.utils import platform
 import threading
 import datetime
 import os
@@ -163,25 +163,32 @@ class FirstWindow(Screen):
                     item.ids.status.disabled = False
 
     def start_recording(self):
-        # get the needed Java classes
-        MediaRecorder = autoclass('android.media.MediaRecorder')
-        AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
-        OutputFormat = autoclass('android.media.MediaRecorder$OutputFormat')
-        AudioEncoder = autoclass('android.media.MediaRecorder$AudioEncoder')
+		# Get the needed Java classes
+		MediaRecorder = autoclass('android.media.MediaRecorder')
+		AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
+		OutputFormat = autoclass('android.media.MediaRecorder$OutputFormat')
+		AudioEncoder = autoclass('android.media.MediaRecorder$AudioEncoder')
 
-        # create out recorder
-        mRecorder = MediaRecorder()
-        mRecorder.setAudioSource(AudioSource.MIC)
-        mRecorder.setOutputFormat(OutputFormat.THREE_GPP)
-        mRecorder.setOutputFile('./testrecorder.3gp')
-        mRecorder.setAudioEncoder(AudioEncoder.AMR_NB)
-        mRecorder.prepare()
+		if platform == 'android':
+			from android.storage import primary_external_storage_path
+			dir = primary_external_storage_path()
 
-        # record 5 seconds
-        mRecorder.start()
-        sleep(10)
-        mRecorder.stop()
-        mRecorder.release()
+			# Create our recorder
+			mRecorder = MediaRecorder()
+			mRecorder.setAudioSource(AudioSource.MIC)
+			mRecorder.setOutputFormat(OutputFormat.DEFAULT)
+			download_dir_path = os.path.join(dir, 'Download')
+			output_file_path = os.path.join(download_dir_path, 'testrecorder.mp3')
+			mRecorder.setOutputFile(output_file_path)
+			mRecorder.setAudioEncoder(AudioEncoder.AAC)
+			mRecorder.prepare()
+
+			# Record 5 seconds
+			mRecorder.start()
+			sleep(5)
+			mRecorder.stop()
+			mRecorder.reset()
+			mRecorder.release()
 
     def settings(self):
         for item in self.ids.container.children:
